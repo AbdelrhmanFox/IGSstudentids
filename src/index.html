@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام معالجة الطلاب - IGS Checker</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <h1><i class="fas fa-users"></i> نظام معالجة طلاب IGS</h1>
+    
+    <div class="process-section">
+      <h2><i class="fas fa-cogs"></i> معالجة الـ IDs</h2>
+      <textarea id="idsInput" placeholder="أدخل الـ IDs هنا، كل ID في سطر..."></textarea>
+      <button id="processBtn"><i class="fas fa-play"></i> بدء المعالجة</button>
+    </div>
+    
+    <div class="results-section">
+      <div class="summary">
+        <div class="summary-item found">
+          <span id="foundCount">0</span>
+          <span>موجودين</span>
+        </div>
+        <div class="summary-item not-found">
+          <span id="notFoundCount">0</span>
+          <span>غير موجودين</span>
+        </div>
+      </div>
+      
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="found">الطلاب الموجودين</button>
+        <button class="tab-btn" data-tab="notFound">غير موجودين</button>
+      </div>
+      
+      <div id="found" class="tab-content">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>الاسم</th>
+              <th>التخصص</th>
+              <th>السنة</th>
+            </tr>
+          </thead>
+          <tbody id="resultsBody"></tbody>
+        </table>
+      </div>
+      
+      <div id="notFound" class="tab-content" style="display:none">
+        <div id="notFoundList" class="not-found-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+    "name": "igs-checker",
+    "version": "1.0.0",
+    "description": "نظام معالجة طلاب IGS",
+    "scripts": {
+      "build": "echo 'No build needed'",
+      "test": "echo 'No tests'"
+    },
+    "dependencies": {
+      "xlsx": "^0.18.5"
+    }
+  }
