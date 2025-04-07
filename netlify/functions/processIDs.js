@@ -1,32 +1,57 @@
 const XLSX = require('xlsx');
+const fs = require('fs');
 const path = require('path');
 
 exports.handler = async (event) => {
   try {
-    // تحقق من وجود الملف أولاً
-    const filePath = path.join(__dirname, '..', '..', 'src', 'assets', 'students.xlsx');
-    console.log('محاولة قراءة الملف من:', filePath);
+    // 1. التحقق من وجود الملف
+    const filePath = path.join(process.cwd(), 'src', 'assets', 'students.xlsx');
+    console.log('مسار الملف:', filePath);
     
-    const ids = JSON.parse(event.body).ids;
-    
-    // باقي الكود كما هو...
-    
-    // قراءة ملف Excel
-    const workbook = XLSX.readFile(filePath);
-    const sheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[sheetName];
-    const studentsData = XLSX.utils.sheet_to_json(worksheet);
-    console.log('تم تحميل عدد من السجلات:', studentsData.length);
+    if (!fs.existsSync(filePath)) {
+      const dirContents = fs.readdirSync(path.join(process.cwd(), 'src', 'assets'));
+      throw new Error(`الملف غير موجود. محتويات المجلد: ${dirContents.join(', ')}`);
+    }
 
-    // باقي الكود...
+    // 2. معالجة الـ IDs
+    const { ids } = JSON.parse(event.body);
+    if (!ids || !Array.isArray(ids)) {
+      throw new Error('يجب إرسال مصفوفة من الـ IDs');
+    }
+
+    // 3. قراءة ملف Excel
+    const workbook = XLSX.readFile(filePath);
+    const studentsData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+    console.log('عدد السجلات:', studentsData.length);
+
+    // 4. تصفية النتائج
+    const found = studentsData.filter(student => ids.includes(student.ID));
+    const notFound = ids.filter(id => !studentsData.some(student => student.ID === id));
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        success: true,
+        found_count: found.length,
+        not_found_count: notFound.length,
+        data: found,
+        not_found_ids: notFound
+      })
+    };
+
   } catch (error) {
-    console.error('حدث خطأ:', error);
+    console.error('تفاصيل الخطأ:', {
+      message: error.message,
+      stack: error.stack,
+      rawError: error
+    });
+    
     return {
       statusCode: 500,
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         error: error.message,
-        path: filePath,
-        dirContents: require('fs').readdirSync(path.join(__dirname, '..', '..', 'src', 'assets'))
+        fullError: error.stack,
+        dirContents: fs.readdirSync(path.join(process.cwd(), 'src', 'assets'))
       })
     };
   }
