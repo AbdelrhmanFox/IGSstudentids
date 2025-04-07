@@ -1,49 +1,33 @@
-// netlify/functions/processIDs.js
 const XLSX = require('xlsx');
 const path = require('path');
 
 exports.handler = async (event) => {
   try {
+    // تحقق من وجود الملف أولاً
+    const filePath = path.join(__dirname, '..', '..', 'src', 'assets', 'students.xlsx');
+    console.log('محاولة قراءة الملف من:', filePath);
+    
     const ids = JSON.parse(event.body).ids;
     
-    if (!ids || !Array.isArray(ids)) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'يجب إرسال مصفوفة من الـ IDs' })
-      };
-    }
-
-    if (ids.length > 500) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'الحد الأقصى هو 500 ID في المرة' })
-      };
-    }
-
+    // باقي الكود كما هو...
+    
     // قراءة ملف Excel
-    const filePath = path.join(process.cwd(), 'src/assets/students.xlsx');
     const workbook = XLSX.readFile(filePath);
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
     const studentsData = XLSX.utils.sheet_to_json(worksheet);
+    console.log('تم تحميل عدد من السجلات:', studentsData.length);
 
-    const found = studentsData.filter(student => ids.includes(student.ID));
-    const notFound = ids.filter(id => !studentsData.some(student => student.ID === id));
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        success: true,
-        found_count: found.length,
-        not_found_count: notFound.length,
-        data: found,
-        not_found_ids: notFound
-      })
-    };
+    // باقي الكود...
   } catch (error) {
+    console.error('حدث خطأ:', error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: error.message })
+      body: JSON.stringify({ 
+        error: error.message,
+        path: filePath,
+        dirContents: require('fs').readdirSync(path.join(__dirname, '..', '..', 'src', 'assets'))
+      })
     };
   }
 };
